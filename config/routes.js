@@ -26,7 +26,7 @@ function register(req, res) {
     })
 }
 
-function login(req, res) {
+/*function login(req, res) {
   // implement user login
   let { username, password } = req.body;
 
@@ -44,6 +44,25 @@ function login(req, res) {
     .catch(err => {
       res.status(500).json(err)
     })
+}*/
+function login(req, res) {
+  // implement user login
+  const { username, password } = req.body;
+
+  Users.findBy({ username })
+    .first()
+    .then(user => {
+      if (user && bcrypt.compareSync(password, user.password)) {
+        const token = generateToken(user);
+
+        res.status(200).json({ message: `Welcome ${user.username}!`, token });
+      } else {
+        res.status(401).json({ message: "You shall not pass!" });
+      }
+    })
+    .catch(error => {
+      res.status(500).json({ message: "We ran into an error retreving the specified request." });
+    });
 }
 
 function generateToken(user) {
